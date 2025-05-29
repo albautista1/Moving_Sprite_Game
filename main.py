@@ -13,8 +13,8 @@ class CoinCollector(arcade.Window):
     def __init__(self):
         super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
 
-        # self.ocean_sound = arcade.load_sound("ocean_sounds.mp3")
-        # arcade.play_sound(self.ocean_sound)
+        self.ocean_sound = arcade.load_sound("ocean_sounds.mp3")
+        arcade.play_sound(self.ocean_sound)
 
 
         self.score = 0
@@ -62,10 +62,11 @@ class CoinCollector(arcade.Window):
 
         #load the enemies
         for _ in range(ENEMY_COUNT):
-            enemy = arcade.Sprite("kakamora.png", 0.1)
+            enemy = arcade.Sprite("kakamora2.png", 0.5)
             enemy.center_x = SCREEN_WIDTH - 30
             enemy.center_y = random.randint(20, SCREEN_HEIGHT-20)
             self.enemy_list.append(enemy)
+            print(enemy)
 
     def on_draw(self):
         self.clear()
@@ -83,6 +84,17 @@ class CoinCollector(arcade.Window):
         self.score_text.text = f"Score: {self.score}"
         self.lives_text.text = f"Lives: {self.lives}"
 
+        for enemy in self.enemy_list:
+            # enemy size = (348, 278.5)
+            x_movement = random.randint(-5, 0)
+            y_movement = random.randint(-5, 0)
+            # print(enemy.size)
+            if enemy.center_x < 0:
+                pass
+            enemy.center_x += x_movement
+            enemy.center_y += y_movement
+
+
 
         coins_hit = arcade.check_for_collision_with_list(self.player, self.coin_list)
         for coin in coins_hit:
@@ -92,13 +104,15 @@ class CoinCollector(arcade.Window):
 
     
         enemies_hit = arcade.check_for_collision_with_list(self.player, self.enemy_list)
+        # print(self.enemy_list)
+        # print(enemies_hit)
         for enemy in enemies_hit:
+            enemy.remove_from_sprite_lists()
             self.lives -= 1
 
 
         self.player.center_x += self.change_x
         self.player.center_y += self.change_y
-
 
     def on_key_press(self, key, modifiers):
         if key == arcade.key.RIGHT:
