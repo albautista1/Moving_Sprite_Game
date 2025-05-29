@@ -13,8 +13,8 @@ class CoinCollector(arcade.Window):
     def __init__(self):
         super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
 
-        self.ocean_sound = arcade.load_sound("ocean_sounds.mp3")
-        arcade.play_sound(self.ocean_sound)
+        # self.ocean_sound = arcade.load_sound("ocean_sounds.mp3")
+        # arcade.play_sound(self.ocean_sound)
 
 
         self.score = 0
