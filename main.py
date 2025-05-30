@@ -16,12 +16,15 @@ class CoinCollector(arcade.Window):
         self.ocean_sound = arcade.load_sound("ocean_sounds.mp3")
         arcade.play_sound(self.ocean_sound)
 
+        self.game_over = False
 
         self.score = 0
         self.lives = 3
+
         self.player = None
         self.coins = None
         self.enemies = None
+
         self.change_x = 0
         self.change_y = 0
 
@@ -31,9 +34,7 @@ class CoinCollector(arcade.Window):
         self.coin_sound = arcade.load_sound("coin_sound.mp3")
         
         self.player = arcade.Sprite("moana.png", 0.2)
-        self.background = arcade.Sprite("ocean_background.png", 1)
-
-        
+        self.background = arcade.Sprite("ocean_background.png", 1)        
 
         self.player_list = arcade.SpriteList()
         self.coin_list = arcade.SpriteList()
@@ -41,11 +42,9 @@ class CoinCollector(arcade.Window):
         self.background_list = arcade.SpriteList()
 
 
-        
         self.player.center_x = SCREEN_WIDTH // 2
         self.player.center_y = SCREEN_HEIGHT // 2
 
-        
         self.background.center_x = SCREEN_WIDTH // 2
         self.background.center_y = SCREEN_HEIGHT // 2
 
@@ -62,20 +61,26 @@ class CoinCollector(arcade.Window):
 
         #load the enemies
         for _ in range(ENEMY_COUNT):
-            enemy = arcade.Sprite("kakamora2.png", 0.5)
-            enemy.center_x = SCREEN_WIDTH - 30
-            enemy.center_y = random.randint(20, SCREEN_HEIGHT-20)
+            enemy = arcade.Sprite("kakamora2.png", 0.3)
+            enemy.center_x = SCREEN_WIDTH - enemy.width
+            enemy.center_y = random.uniform(enemy.height, SCREEN_HEIGHT-enemy.height)
+            enemy.change_x = random.uniform(-5, -1) 
+            enemy.change_y = random.uniform(-5, -1) 
             self.enemy_list.append(enemy)
-            print(enemy)
+
 
     def on_draw(self):
         self.clear()
         self.background_list.draw()
-        self.score_text.draw()
-        self.lives_text.draw()
         self.coin_list.draw()
         self.enemy_list.draw()
         self.player_list.draw()
+        self.score_text.draw()
+        self.lives_text.draw()
+        if self.game_over:
+            game_over_text = arcade.Text("GAME OVER", SCREEN_WIDTH / 2 - 60, SCREEN_HEIGHT / 2, arcade.color.BLACK, 30)
+            game_over_text.draw()
+            return
 
 
 
@@ -84,16 +89,47 @@ class CoinCollector(arcade.Window):
         self.score_text.text = f"Score: {self.score}"
         self.lives_text.text = f"Lives: {self.lives}"
 
-        for enemy in self.enemy_list:
-            # enemy size = (348, 278.5)
-            x_movement = random.randint(-5, 0)
-            y_movement = random.randint(-5, 0)
-            # print(enemy.size)
-            if enemy.center_x < 0:
-                pass
-            enemy.center_x += x_movement
-            enemy.center_y += y_movement
+        if self.lives <= 0:
+            self.game_over = True
+            return
 
+        for enemy in self.enemy_list:
+            enemy.center_x += enemy.change_x
+            enemy.center_y += enemy.change_y
+
+            # Bounce off top/bottom
+            if enemy.top > SCREEN_HEIGHT or enemy.bottom < 0:
+                enemy.change_y *= -1
+
+            # Optionally bounce off sides
+            if enemy.left < 0 or enemy.right > SCREEN_WIDTH:
+                enemy.change_x *= -1
+
+
+        # x_movement_updater = 1
+        # y_movement_updater = 1
+        # for enemy in self.enemy_list:
+        #     enemy_width = enemy.width
+        #     enemy_height = enemy.height
+
+
+        #     # enemy movement speed
+        #     enemy_x_movement = random.randint(-10, -5)
+        #     enemy_y_movement = random.randint(-10, -5)
+
+        #     # update enemy direction
+        #     if enemy.center_x - enemy_width/3 < 0:
+        #         x_movement_updater = -1
+        #     if enemy.center_x + enemy_width/3 > SCREEN_WIDTH:
+        #         x_movement_updater = 1
+        #     if enemy.center_y - enemy_height/3 < 0:
+        #         y_movement_updater = -1
+        #     if enemy.center_y + enemy_height/3 > SCREEN_HEIGHT:
+        #         y_movement_updater = 1
+            
+        #     # move enemy
+        #     enemy.center_x += enemy_x_movement * x_movement_updater
+        #     enemy.center_y += enemy_y_movement * y_movement_updater
 
 
         coins_hit = arcade.check_for_collision_with_list(self.player, self.coin_list)
