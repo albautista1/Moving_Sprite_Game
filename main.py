@@ -33,6 +33,7 @@ class CoinCollector(arcade.Window):
         self.lives_text = arcade.Text(f"Lives: {self.lives}", 10, SCREEN_HEIGHT-60, arcade.color.BLACK, 20)
         
         self.coin_sound = arcade.load_sound("coin_sound.mp3")
+        self.hit_sound = arcade.load_sound("hit_sound.mp3")
         
         self.player = arcade.Sprite("moana.png", 0.2)
         self.background = arcade.Sprite("ocean_background.png", 1)        
@@ -154,6 +155,7 @@ class CoinCollector(arcade.Window):
         for enemy in enemies_hit:
             enemy.remove_from_sprite_lists()
             self.lives -= 1
+            arcade.play_sound(self.hit_sound)
 
         self.player.center_x += self.change_x
         self.player.center_y += self.change_y
