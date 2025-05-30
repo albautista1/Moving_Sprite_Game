@@ -17,6 +17,7 @@ class CoinCollector(arcade.Window):
         arcade.play_sound(self.ocean_sound)
 
         self.game_over = False
+        self.game_won = False
 
         self.score = 0
         self.lives = 3
@@ -77,6 +78,10 @@ class CoinCollector(arcade.Window):
         self.player_list.draw()
         self.score_text.draw()
         self.lives_text.draw()
+        if self.game_won:
+            game_won_text = arcade.Text("YOU WIN", SCREEN_WIDTH / 2 - 60, SCREEN_HEIGHT / 2, arcade.color.BLACK, 30)
+            game_won_text.draw()
+            return
         if self.game_over:
             game_over_text = arcade.Text("GAME OVER", SCREEN_WIDTH / 2 - 60, SCREEN_HEIGHT / 2, arcade.color.BLACK, 30)
             game_over_text.draw()
@@ -92,6 +97,11 @@ class CoinCollector(arcade.Window):
         if self.lives <= 0:
             self.game_over = True
             return
+        
+        if self.score == COIN_COUNT:
+            self.game_won = True
+            return
+
 
         for enemy in self.enemy_list:
             enemy.center_x += enemy.change_x
@@ -101,7 +111,7 @@ class CoinCollector(arcade.Window):
             if enemy.top > SCREEN_HEIGHT or enemy.bottom < 0:
                 enemy.change_y *= -1
 
-            # Optionally bounce off sides
+            # Bounce off sides
             if enemy.left < 0 or enemy.right > SCREEN_WIDTH:
                 enemy.change_x *= -1
 
@@ -138,7 +148,6 @@ class CoinCollector(arcade.Window):
             self.score += 1
             arcade.play_sound(self.coin_sound)     
 
-    
         enemies_hit = arcade.check_for_collision_with_list(self.player, self.enemy_list)
         # print(self.enemy_list)
         # print(enemies_hit)
@@ -146,9 +155,19 @@ class CoinCollector(arcade.Window):
             enemy.remove_from_sprite_lists()
             self.lives -= 1
 
-
         self.player.center_x += self.change_x
         self.player.center_y += self.change_y
+
+
+        # Keep player on screen
+        if self.player.left < 0:
+            self.player.left = 0
+        if self.player.right > SCREEN_WIDTH:
+            self.player.right = SCREEN_WIDTH
+        if self.player.bottom < 0:
+            self.player.bottom = 0
+        if self.player.top > SCREEN_HEIGHT:
+            self.player.top = SCREEN_HEIGHT
 
     def on_key_press(self, key, modifiers):
         if key == arcade.key.RIGHT:
